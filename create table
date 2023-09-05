@@ -1,1 +1,28 @@
-.
+create table userss(
+user_id number primary key ,
+username varchar2(100),
+role varchar2(50),
+email varchar2(30),
+password varchar2(20) );
+
+
+create table projects(
+project_id number primary key ,
+name varchar2(100),
+description varchar2(1000),
+status varchar2(50),
+deadline timestamp);
+
+
+create table tasks(
+task_id number primary key ,
+name varchar2(100),
+description varchar2(1000),
+project_id number,
+assigned_to number,
+status varchar2(50),
+deadline timestamp
+constraint fk_project
+foreign key(project_id)
+references projects(project_id));
+
