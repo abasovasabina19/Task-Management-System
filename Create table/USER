@@ -1,6 +1,4 @@
 -- Create the users table
---In Oracle SQL, naming a table "users" can be problematic because the word "users" is a reserved keyword and holds a special meaning within 
---the Oracle database system. 
 --Constraints for the "userss" Table:
 
 --1.Usernames must be unique.No two users can have the same username.
