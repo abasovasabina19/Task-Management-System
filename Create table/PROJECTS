@@ -1,0 +1,8 @@
+-- Create the projects table
+CREATE TABLE projects (
+    project_id NUMBER PRIMARY KEY,
+    name VARCHAR2(100),
+    description VARCHAR2(1000),
+    status VARCHAR2(50),
+    deadline TIMESTAMP
+);
