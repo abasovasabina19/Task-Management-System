@@ -1,7 +1,12 @@
 -- Create the projects table
+--Constraints for the "projects" Table:
+--1.Project names must be unique.
+
+
+
 CREATE TABLE projects (
     project_id NUMBER PRIMARY KEY,
-    name VARCHAR2(100),
+    name VARCHAR2(100) UNIQUE,
     description VARCHAR2(1000),
     status VARCHAR2(50),
     deadline TIMESTAMP
