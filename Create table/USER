@@ -1,0 +1,10 @@
+-- Create the users table
+--In Oracle SQL, naming a table "user" can be problematic because the word "user" is a reserved keyword and holds a special meaning within the Oracle database system. 
+CREATE TABLE userss (
+    user_id NUMBER PRIMARY KEY,
+    username VARCHAR2(100),
+    role VARCHAR2(50),
+    email VARCHAR2(30),
+    password VARCHAR2(20)
+);
+
