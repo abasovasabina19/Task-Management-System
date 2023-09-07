@@ -1,0 +1,99 @@
+CREATE OR REPLACE PACKAGE pkg_users AS
+  -- Procedure to insert a user
+  PROCEDURE insert_user (
+    p_username VARCHAR2,
+    p_role VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2
+  );
+
+  -- Procedure to delete a user
+  PROCEDURE delete_user (
+    p_user_id NUMBER
+  );
+
+
+
+  -- Procedure to update a user
+  PROCEDURE update_user (
+    p_user_id NUMBER,
+    p_username VARCHAR2,
+    p_role VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2
+  );
+
+END ;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_users AS
+  -- Procedure to insert a user
+  PROCEDURE insert_user (
+    p_username VARCHAR2,
+    p_role VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2
+  ) AS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+    BEGIN
+      -- User insertion operation
+      INSERT INTO users (user_id, username, role, email, password)
+      VALUES (user_id_seq.NEXTVAL, p_username, p_role, p_email, p_password);
+
+      COMMIT; -- Commit the transaction if data is successfully inserted
+    EXCEPTION
+      WHEN OTHERS THEN
+        ROLLBACK; -- Rollback in case of an error
+        RAISE_APPLICATION_ERROR(-20001, 'User insertion error: ' || SQLERRM); -- Create an error message
+    END;
+  END insert_user;
+
+  -- Procedure to delete a user
+  PROCEDURE delete_user (
+    p_user_id NUMBER
+  ) AS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+    BEGIN
+      -- User deletion operation
+      DELETE FROM users WHERE user_id = p_user_id;
+
+      COMMIT; -- Commit the transaction if data is successfully deleted
+    EXCEPTION
+      WHEN OTHERS THEN
+        ROLLBACK; -- Rollback in case of an error
+        RAISE_APPLICATION_ERROR(-20002, 'User deletion error: ' || SQLERRM); -- Create an error message
+    END;
+  END delete_user;
+
+  -- Procedure to update a user
+  PROCEDURE update_user (
+    p_user_id NUMBER,
+    p_username VARCHAR2,
+    p_role VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2
+  ) AS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+    BEGIN
+      -- User update operation
+      UPDATE users
+      SET username = p_username,
+          role = p_role,
+          email = p_email,
+          password = p_password
+      WHERE user_id = p_user_id;
+
+      COMMIT; -- Commit the transaction if data is successfully updated
+    EXCEPTION
+      WHEN OTHERS THEN
+        ROLLBACK; -- Rollback in case of an error
+        RAISE_APPLICATION_ERROR(-20003, 'User update error: ' || SQLERRM); -- Create an error message
+    END;
+  END update_user;
+
+END pkg_users;
+/
+
