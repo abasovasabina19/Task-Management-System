@@ -6,14 +6,10 @@ CREATE OR REPLACE PACKAGE pkg_users AS
     p_email VARCHAR2,
     p_password VARCHAR2
   );
-
   -- Procedure to delete a user
   PROCEDURE delete_user (
     p_user_id NUMBER
   );
-
-
-
   -- Procedure to update a user
   PROCEDURE update_user (
     p_user_id NUMBER,
@@ -22,7 +18,6 @@ CREATE OR REPLACE PACKAGE pkg_users AS
     p_email VARCHAR2,
     p_password VARCHAR2
   );
-
 END ;
 /
 
