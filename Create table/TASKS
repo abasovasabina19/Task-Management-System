@@ -17,5 +17,5 @@ CREATE TABLE tasks (
     REFERENCES projects (project_id),
     CONSTRAINT fk_assigned_to
     FOREIGN KEY (assigned_to)
-    REFERENCES userss (user_id)
+    REFERENCES users (user_id)
 );
