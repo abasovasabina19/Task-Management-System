@@ -1,0 +1,108 @@
+CREATE OR REPLACE PACKAGE tasks_pkg AS
+  -- task elave etmek ucun prosedur
+  PROCEDURE insert_task (
+    p_task_id NUMBER,
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to NUMBER,
+    p_status VARCHAR2,
+    p_deadline TIMESTAMP
+  );
+
+  -- task update elemek ucun prosedur
+  PROCEDURE update_task (
+    p_task_id NUMBER,
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to NUMBER,
+    p_status VARCHAR2,
+    p_deadline TIMESTAMP
+  );
+
+  -- task silmek ucun prosedur
+  PROCEDURE delete_task (
+    p_task_id NUMBER
+  );
+
+END tasks_pkg;
+
+
+
+
+CREATE OR REPLACE PACKAGE BODY tasks_pkg AS
+  -- common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2) AS
+  BEGIN
+    ROLLBACK;
+    RAISE_APPLICATION_ERROR(-20000, p_error_message);
+  END raise_error;
+
+  -- Procedure to insert a task
+  PROCEDURE insert_task (
+    p_task_id NUMBER,
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to NUMBER,
+    p_status VARCHAR2,
+    p_deadline TIMESTAMP
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      INSERT INTO tasks (task_id, name, description, project_id, assigned_to, status, deadline)
+      VALUES (p_task_id, p_name, p_description, p_project_id, p_assigned_to, p_status, p_deadline);
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Task insertion error: ' || SQLERRM);
+    END;
+  END insert_task;
+
+  -- Procedure to update a task
+  PROCEDURE update_task (
+    p_task_id NUMBER,
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to NUMBER,
+    p_status VARCHAR2,
+    p_deadline TIMESTAMP
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      UPDATE tasks
+      SET name = p_name,
+          description = p_description,
+          project_id = p_project_id,
+          assigned_to = p_assigned_to,
+          status = p_status,
+          deadline = p_deadline
+      WHERE task_id = p_task_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Task update error: ' || SQLERRM);
+    END;
+  END update_task;
+
+  -- Procedure to delete a task
+  PROCEDURE delete_task (
+    p_task_id NUMBER
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      DELETE FROM tasks WHERE task_id = p_task_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Task deletion error: ' || SQLERRM);
+    END;
+  END delete_task;
+
+END tasks_pkg;
+
