@@ -88,7 +88,7 @@ END pkg_users;
 
 set serveroutput on;
 
-EXEC pkg_users.insert_user('Nik', 'User', 'nick@example.com', 'password123');
+EXEC pkg_users.insert_user('Nick', 'User', 'nick@example.com', 'password123');
 
 
 SELECT *FROM USERS
