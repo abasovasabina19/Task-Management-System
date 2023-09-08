@@ -13,5 +13,5 @@ CREATE TABLE userss (
     username VARCHAR2(100) UNIQUE,
     role VARCHAR2(50),
     email VARCHAR2(30) UNIQUE,
-    password VARCHAR2(20) CHECK (LENGTH(password) >= 8 AND REGEXP_LIKE(password, '[A-Z]') AND REGEXP_LIKE(password, '[0-9]'))
+    password VARCHAR2(100) CHECK (LENGTH(password) >= 8 AND REGEXP_LIKE(password, '[A-Z]') AND REGEXP_LIKE(password, '[0-9]'))
 );
