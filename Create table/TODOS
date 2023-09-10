@@ -3,9 +3,10 @@ CREATE TABLE todos (
     user_id NUMBER, -- Hangi kullanıcıya ait olduğunu belirtir
     task_name VARCHAR2(100),
     task_description VARCHAR2(1000),
-    task_status VARCHAR2(50), -- "To-Do", "Bugün", "Tamamlandı" gibi
+    task_status VARCHAR2(50), -- "To-Do", "Bugün", "Tamamlandı" gibi değerlerle
     task_date DATE, -- İşin son tarihi veya bitiş tarihi
     CONSTRAINT fk_user
     FOREIGN KEY (user_id)
     REFERENCES users (user_id)
 );
+
