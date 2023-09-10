@@ -1,0 +1,9 @@
+CREATE TABLE comments (
+    comment_id NUMBER PRIMARY KEY,
+    task_id NUMBER, -- Hangi göreve ait olduğunu belirtir
+    user_id NUMBER, -- Kimin tarafından yapıldığını belirtir
+    comment_text VARCHAR2(1000), -- Yorum metni
+    comment_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Yorumun tarih ve zamanı
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
