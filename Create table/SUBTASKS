@@ -1,0 +1,10 @@
+CREATE TABLE subtasks (
+    subtask_id NUMBER PRIMARY KEY,
+    task_id NUMBER,
+    subtask_name VARCHAR2(100),
+    description VARCHAR2(500),
+    start_date DATE,
+    end_date DATE,
+    status VARCHAR2(50),
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
+);
