@@ -10,8 +10,9 @@ CREATE TABLE tasks (
     description VARCHAR2(1000),
     project_id NUMBER,
     assigned_to NUMBER,
-    status VARCHAR2(50),
     deadline TIMESTAMP,
+    reminder_date TIMESTAMP,
+    status VARCHAR2(50) DEFAULT 'To-Do', -- "To-Do", "In Progress", "Completed" gibi değerlerle başlangıçta doldurulur
     CONSTRAINT fk_project
     FOREIGN KEY (project_id)
     REFERENCES projects (project_id),
