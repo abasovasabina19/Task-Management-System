@@ -8,3 +8,4 @@ CREATE TABLE subtasks (
     status VARCHAR2(50),
     FOREIGN KEY (task_id) REFERENCES tasks(task_id)
 );
+
