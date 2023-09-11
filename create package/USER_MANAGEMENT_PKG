@@ -1,0 +1,134 @@
+
+CREATE OR REPLACE PACKAGE user_management_pkg AS
+  -- Kullan?c? Ekleme (Insert)
+  PROCEDURE add_user(
+    p_username VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2,
+    p_role_name VARCHAR2
+  );
+
+  -- Kullan?c? Güncelleme (Update)
+  PROCEDURE update_user(
+    p_user_id NUMBER,
+    p_username VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2,
+    p_role_name VARCHAR2
+  );
+
+  -- Kullan?c? Silme (Delete)
+  PROCEDURE delete_user(p_user_id NUMBER);
+
+  -- Log Ekleme
+  PROCEDURE add_log(
+    p_user_id NUMBER,
+    p_task_id NUMBER := NULL, -- Task ID'yi opsiyonel hale getirin
+    p_event_type VARCHAR2,
+    p_description VARCHAR2
+  );
+
+END user_management_pkg;
+/
+
+-- Body
+CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
+  -- Kullan?c? Ekleme (Insert)
+  PROCEDURE add_user(
+    p_username VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2,
+    p_role_name VARCHAR2
+  ) AS
+    v_role_id NUMBER;
+  BEGIN
+    -- Verilen rol ad?na göre rol kimli?ini bul
+    SELECT role_id INTO v_role_id FROM roles WHERE role_name = p_role_name;
+    
+    -- Kullan?c? eklemesi
+    INSERT INTO users (user_id, username, email, password, role_id)
+    VALUES (user_id_seq.NEXTVAL, p_username, p_email, p_password, v_role_id);
+    
+    COMMIT;
+    
+    -- Loglama
+    add_log(NULL, NULL, 'USER_INSERT', 'User inserted: ' || p_username);
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END add_user;
+
+  -- Kullan?c? Güncelleme (Update)
+  PROCEDURE update_user(
+    p_user_id NUMBER,
+    p_username VARCHAR2,
+    p_email VARCHAR2,
+    p_password VARCHAR2,
+    p_role_name VARCHAR2
+  ) AS
+    v_role_id NUMBER;
+  BEGIN
+    -- Verilen rol ad?na göre rol kimli?ini bul
+    SELECT role_id INTO v_role_id FROM roles WHERE role_name = p_role_name;
+    
+    -- Kullan?c? güncellemesi
+    UPDATE users
+    SET
+      username = p_username,
+      email = p_email,
+      password = p_password,
+      role_id = v_role_id
+    WHERE user_id = p_user_id;
+    
+    COMMIT;
+    
+    -- Loglama
+    add_log(NULL, NULL, 'USER_UPDATE', 'User updated: ' || p_username);
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END update_user;
+
+  -- Kullan?c? Silme (Delete)
+  PROCEDURE delete_user(p_user_id NUMBER) AS
+  BEGIN
+    DELETE FROM users WHERE user_id = p_user_id;
+    COMMIT;
+    -- Loglama
+    add_log(NULL, NULL, 'USER_DELETE', 'User deleted: ' || TO_CHAR(p_user_id));
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END delete_user;
+
+  -- Loglama
+  PROCEDURE add_log(
+    p_user_id NUMBER,
+    p_task_id NUMBER := NULL, -- Task ID'yi opsiyonel hale getirin
+    p_event_type VARCHAR2,
+    p_description VARCHAR2
+  ) AS
+  BEGIN
+    INSERT INTO logs (log_id, user_id, task_id, event_type, description)
+    VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id, p_event_type, p_description);
+    
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END add_log;  
+  
+
+END user_management_pkg;
+/
+
+
+
+EXEC user_management_pkg.add_user('Sabina', 'Sabina@div.edu.az', 'parola123', 'Admin');
+EXEC user_management_pkg.update_user(16, 'Leman', 'Leman@div.edu.az', 'newparola12', 'Manager');
+EXEC user_management_pkg.delete_user(1);
+EXEC user_management_pkg.add_log(1, NULL, 'USER_INSERT', 'Yeni user eklendi: Leman'); -- xeta verir tasks tablem bosdu
