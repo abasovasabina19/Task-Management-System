@@ -1,0 +1,123 @@
+-- Package Specification
+CREATE OR REPLACE PACKAGE task_management_pkg AS
+  -- Görev eklemek için prosedür
+  PROCEDURE insert_task (
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to_username VARCHAR2,
+    p_status VARCHAR2 DEFAULT 'To-Do',
+    p_deadline TIMESTAMP,
+    p_reminder TIMESTAMP
+  );
+
+  -- Görev güncellemek için prosedür
+  PROCEDURE update_task (
+    p_task_id NUMBER,
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to_username VARCHAR2,
+    p_status VARCHAR2,
+    p_deadline TIMESTAMP,
+    p_reminder TIMESTAMP
+  );
+
+  -- Görev silmek için prosedür
+  PROCEDURE delete_task (
+    p_task_id NUMBER
+  );
+
+  -- Common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2);
+
+END task_management_pkg;
+/
+
+-- Package Body
+CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
+  -- Common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2) AS
+  BEGIN
+    ROLLBACK;
+    RAISE_APPLICATION_ERROR(-20000, p_error_message);
+  END raise_error;
+  
+  -- Görev eklemek için prosedür
+  PROCEDURE insert_task (
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to_username VARCHAR2,
+    p_status VARCHAR2 DEFAULT 'To-Do',
+    p_deadline TIMESTAMP,
+    p_reminder TIMESTAMP
+  ) AS
+    v_assigned_to_id NUMBER;
+  BEGIN
+    -- Verilen kullanıcı adına göre kullanıcı kimliğini bul
+    SELECT user_id INTO v_assigned_to_id FROM users WHERE username = p_assigned_to_username;
+
+    -- Start the transaction
+    BEGIN
+      INSERT INTO tasks (task_id, name, description, project_id, assigned_to, status, deadline, reminder)
+      VALUES (task_id_seq.NEXTVAL, p_name, p_description, p_project_id, v_assigned_to_id, p_status, p_deadline, p_reminder);
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Task insertion error: ' || SQLERRM);
+    END;
+  END insert_task;
+
+  -- Görev güncellemek için prosedür
+  PROCEDURE update_task (
+    p_task_id NUMBER,
+    p_name VARCHAR2,
+    p_description VARCHAR2,
+    p_project_id NUMBER,
+    p_assigned_to_username VARCHAR2,
+    p_status VARCHAR2,
+    p_deadline TIMESTAMP,
+    p_reminder TIMESTAMP
+  ) AS
+    v_assigned_to_id NUMBER;
+  BEGIN
+    -- Verilen kullanıcı adına göre kullanıcı kimliğini bul
+    SELECT user_id INTO v_assigned_to_id FROM users WHERE username = p_assigned_to_username;
+
+    -- Start the transaction
+    BEGIN
+      UPDATE tasks
+      SET name = p_name,
+          description = p_description,
+          project_id = p_project_id,
+          assigned_to = v_assigned_to_id,
+          status = p_status,
+          deadline = p_deadline,
+          reminder = p_reminder
+      WHERE task_id = p_task_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Task update error: ' || SQLERRM);
+    END;
+  END update_task;
+
+  -- Görev silmek için prosedür
+  PROCEDURE delete_task (
+    p_task_id NUMBER
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      DELETE FROM tasks WHERE task_id = p_task_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Task deletion error: ' || SQLERRM);
+    END;
+  END delete_task;
+
+END task_management_pkg;
+/
+
