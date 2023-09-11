@@ -13,7 +13,7 @@ CREATE TABLE users (
     user_id NUMBER PRIMARY KEY,
     username VARCHAR2(100) UNIQUE,
     email VARCHAR2(100) UNIQUE,
-    password VARCHAR2(100),
+    password VARCHAR2(100) CHECK (LENGTH(password) >= 8 AND REGEXP_LIKE(password, '[A-Z]') AND REGEXP_LIKE(password, '[0-9]')),
     role_id NUMBER,
     CONSTRAINT fk_users_roles
     FOREIGN KEY (role_id)
