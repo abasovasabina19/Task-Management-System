@@ -1,0 +1,70 @@
+CREATE OR REPLACE PACKAGE role_management_pkg AS
+  -- Rol eklemek için prosedür
+  PROCEDURE insert_role(
+    p_role_name roles.role_name%TYPE
+  );
+
+  -- Rol güncellemek için prosedür
+  PROCEDURE update_role(
+    p_role_id roles.role_id%TYPE,
+    p_role_name roles.role_name%TYPE
+  );
+
+  -- Rol silmek için prosedür
+  PROCEDURE delete_role(
+    p_role_id roles.role_id%TYPE
+  );
+
+END role_management_pkg;
+/
+
+CREATE OR REPLACE PACKAGE BODY role_management_pkg AS
+  -- Rol eklemek için prosedür
+  PROCEDURE insert_role(
+    p_role_name roles.role_name%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO roles (role_id, role_name)
+    VALUES (role_id_seq.NEXTVAL, p_role_name);
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END insert_role;
+
+  -- Rol güncellemek için prosedür
+  PROCEDURE update_role(
+    p_role_id roles.role_id%TYPE,
+    p_role_name roles.role_name%TYPE
+  ) AS
+  BEGIN
+    UPDATE roles
+    SET role_name = p_role_name
+    WHERE role_id = p_role_id;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END update_role;
+
+  -- Rol silmek için prosedür
+  PROCEDURE delete_role(
+    p_role_id roles.role_id%TYPE
+  ) AS
+  BEGIN
+    DELETE FROM roles WHERE role_id = p_role_id;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END delete_role;
+
+END role_management_pkg;
+/
+ EXEC role_management_pkg.insert_role('User');
+ EXEC role_management_pkg.delete_role(1);
+ select *from roles
+  
