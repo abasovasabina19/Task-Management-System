@@ -28,6 +28,14 @@ CREATE OR REPLACE PACKAGE task_management_pkg AS
     p_task_id tasks.task_id%TYPE
   );
 
+  -- Log ekleme prosedürü
+  PROCEDURE add_log (
+    p_user_id users.user_id%TYPE,
+    p_task_id tasks.task_id%TYPE := NULL,
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
+  );
+
   -- Common subprocedure for raising exceptions and rolling back
   PROCEDURE raise_error(p_error_message VARCHAR2);
 
@@ -118,7 +126,23 @@ CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
     END;
   END delete_task;
 
+  -- Log ekleme prosedürü
+  PROCEDURE add_log (
+    p_user_id users.user_id%TYPE,
+    p_task_id tasks.task_id%TYPE := NULL,
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
+  ) AS
+  BEGIN
+    -- Log ekleme işlemi
+    INSERT INTO logs (log_id, user_id, task_id, event_type, description)
+    VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id, p_event_type, p_description);
+    
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      raise_error('Log insertion error: ' || SQLERRM);
+  END add_log;
+
 END task_management_pkg;
 /
-
-
