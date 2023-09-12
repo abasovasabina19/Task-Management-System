@@ -1,37 +1,36 @@
 -- Package Specification
 CREATE OR REPLACE PACKAGE project_management_pkg AS
-  -- common subprocedure for raising exceptions and rolling back
+  -- Common subprocedure for raising exceptions and rolling back
   PROCEDURE raise_error(p_error_message VARCHAR2);
   
   -- Proje eklemek için prosedür
   PROCEDURE insert_project (
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_status VARCHAR2,
-    p_deadline TIMESTAMP
+    p_name projects.name%TYPE,
+    p_description projects.description%TYPE,
+    p_status projects.status%TYPE,
+    p_deadline projects.deadline%TYPE
   );
 
   -- Proje güncellemek için prosedür
   PROCEDURE update_project (
-    p_project_id NUMBER,
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_status VARCHAR2,
-    p_deadline TIMESTAMP
+    p_project_id projects.project_id%TYPE,
+    p_name projects.name%TYPE,
+    p_description projects.description%TYPE,
+    p_status projects.status%TYPE,
+    p_deadline projects.deadline%TYPE
   );
 
   -- Proje silmek için prosedür
   PROCEDURE delete_project (
-    p_project_id NUMBER
+    p_project_id projects.project_id%TYPE
   );
 
 END project_management_pkg;
 /
 
-
 -- Package Body
 CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
-  -- common subprocedure for raising exceptions and rolling back
+  -- Common subprocedure for raising exceptions and rolling back
   PROCEDURE raise_error(p_error_message VARCHAR2) AS
   BEGIN
     ROLLBACK;
@@ -40,10 +39,10 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
   
   -- Proje eklemek için prosedür
   PROCEDURE insert_project (
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_status VARCHAR2,
-    p_deadline TIMESTAMP
+    p_name projects.name%TYPE,
+    p_description projects.description%TYPE,
+    p_status projects.status%TYPE,
+    p_deadline projects.deadline%TYPE
   ) AS
   BEGIN
     -- Start the transaction
@@ -59,11 +58,11 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
 
   -- Proje güncellemek için prosedür
   PROCEDURE update_project (
-    p_project_id NUMBER,
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_status VARCHAR2,
-    p_deadline TIMESTAMP
+    p_project_id projects.project_id%TYPE,
+    p_name projects.name%TYPE,
+    p_description projects.description%TYPE,
+    p_status projects.status%TYPE,
+    p_deadline projects.deadline%TYPE
   ) AS
   BEGIN
     -- Start the transaction
@@ -83,7 +82,7 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
 
   -- Proje silmek için prosedür
   PROCEDURE delete_project (
-    p_project_id NUMBER
+    p_project_id projects.project_id%TYPE
   ) AS
   BEGIN
     -- Start the transaction
