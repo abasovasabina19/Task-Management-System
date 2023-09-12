@@ -129,4 +129,4 @@ END user_management_pkg;
 EXEC user_management_pkg.add_user('Sabina', 'Sabina@div.edu.az', 'parola123', 'Admin');
 EXEC user_management_pkg.update_user(16, 'Leman', 'Leman@div.edu.az', 'newparola12', 'Manager');
 EXEC user_management_pkg.delete_user(1);
-EXEC user_management_pkg.add_log(1, NULL, 'USER_INSERT', 'Yeni user eklendi: Leman'); -- xeta verir tasks tablem bosdu
+EXEC user_management_pkg.add_log(16, NULL, 'USER_INSERT', 'Yeni user eklendi: Leman'); 
