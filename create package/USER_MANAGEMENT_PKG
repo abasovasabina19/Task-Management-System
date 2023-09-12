@@ -1,51 +1,51 @@
-
 CREATE OR REPLACE PACKAGE user_management_pkg AS
-  -- Kullan?c? Ekleme (Insert)
+  -- Kullanıcı Ekleme (Insert)
   PROCEDURE add_user(
-    p_username VARCHAR2,
-    p_email VARCHAR2,
-    p_password VARCHAR2,
-    p_role_name VARCHAR2
+    p_username users.username%TYPE,
+    p_email users.email%TYPE,
+    p_password users.password%TYPE,
+    p_role_name roles.role_name%TYPE
   );
 
-  -- Kullan?c? Güncelleme (Update)
+  -- Kullanıcı Güncelleme (Update)
   PROCEDURE update_user(
-    p_user_id NUMBER,
-    p_username VARCHAR2,
-    p_email VARCHAR2,
-    p_password VARCHAR2,
-    p_role_name VARCHAR2
+    p_user_id users.user_id%TYPE,
+    p_username users.username%TYPE,
+    p_email users.email%TYPE,
+    p_password users.password%TYPE,
+    p_role_name roles.role_name%TYPE
   );
 
-  -- Kullan?c? Silme (Delete)
-  PROCEDURE delete_user(p_user_id NUMBER);
+  -- Kullanıcı Silme (Delete)
+  PROCEDURE delete_user(p_user_id users.user_id%TYPE);
 
   -- Log Ekleme
   PROCEDURE add_log(
-    p_user_id NUMBER,
-    p_task_id NUMBER := NULL, -- Task ID'yi opsiyonel hale getirin
-    p_event_type VARCHAR2,
-    p_description VARCHAR2
+    p_user_id logs.user_id%TYPE,
+    p_task_id logs.task_id%TYPE := NULL, -- Task ID'yi opsiyonel hale getirin
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
   );
 
 END user_management_pkg;
 /
 
+
 -- Body
 CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
-  -- Kullan?c? Ekleme (Insert)
+  -- Kullanıcı Ekleme (Insert)
   PROCEDURE add_user(
-    p_username VARCHAR2,
-    p_email VARCHAR2,
-    p_password VARCHAR2,
-    p_role_name VARCHAR2
+    p_username users.username%TYPE,
+    p_email users.email%TYPE,
+    p_password users.password%TYPE,
+    p_role_name roles.role_name%TYPE
   ) AS
-    v_role_id NUMBER;
+    v_role_id roles.role_id%TYPE;
   BEGIN
-    -- Verilen rol ad?na göre rol kimli?ini bul
+    -- Verilen rol adına göre rol kimliğini bul
     SELECT role_id INTO v_role_id FROM roles WHERE role_name = p_role_name;
     
-    -- Kullan?c? eklemesi
+    -- Kullanıcı eklemesi
     INSERT INTO users (user_id, username, email, password, role_id)
     VALUES (user_id_seq.NEXTVAL, p_username, p_email, p_password, v_role_id);
     
@@ -59,20 +59,20 @@ CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
       RAISE;
   END add_user;
 
-  -- Kullan?c? Güncelleme (Update)
+  -- Kullanıcı Güncelleme (Update)
   PROCEDURE update_user(
-    p_user_id NUMBER,
-    p_username VARCHAR2,
-    p_email VARCHAR2,
-    p_password VARCHAR2,
-    p_role_name VARCHAR2
+    p_user_id users.user_id%TYPE,
+    p_username users.username%TYPE,
+    p_email users.email%TYPE,
+    p_password users.password%TYPE,
+    p_role_name roles.role_name%TYPE
   ) AS
-    v_role_id NUMBER;
+    v_role_id roles.role_id%TYPE;
   BEGIN
-    -- Verilen rol ad?na göre rol kimli?ini bul
+    -- Verilen rol adına göre rol kimliğini bul
     SELECT role_id INTO v_role_id FROM roles WHERE role_name = p_role_name;
     
-    -- Kullan?c? güncellemesi
+    -- Kullanıcı güncellemesi
     UPDATE users
     SET
       username = p_username,
@@ -91,8 +91,8 @@ CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
       RAISE;
   END update_user;
 
-  -- Kullan?c? Silme (Delete)
-  PROCEDURE delete_user(p_user_id NUMBER) AS
+  -- Kullanıcı Silme (Delete)
+  PROCEDURE delete_user(p_user_id users.user_id%TYPE) AS
   BEGIN
     DELETE FROM users WHERE user_id = p_user_id;
     COMMIT;
@@ -104,12 +104,12 @@ CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
       RAISE;
   END delete_user;
 
-  -- Loglama
+  -- Log Ekleme
   PROCEDURE add_log(
-    p_user_id NUMBER,
-    p_task_id NUMBER := NULL, -- Task ID'yi opsiyonel hale getirin
-    p_event_type VARCHAR2,
-    p_description VARCHAR2
+    p_user_id logs.user_id%TYPE,
+    p_task_id logs.task_id%TYPE := NULL, -- Task ID'yi opsiyonel hale getirin
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
   ) AS
   BEGIN
     INSERT INTO logs (log_id, user_id, task_id, event_type, description)
@@ -121,8 +121,6 @@ CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
       ROLLBACK;
       RAISE;
   END add_log;  
-  
-
 END user_management_pkg;
 /
 
