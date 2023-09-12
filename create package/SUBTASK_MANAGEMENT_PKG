@@ -1,0 +1,126 @@
+CREATE OR REPLACE PACKAGE subtask_management_pkg AS
+  -- Alt görev eklemek için prosedür
+  PROCEDURE insert_subtask (
+    p_task_id NUMBER,
+    p_subtask_name subtasks.subtask_name%TYPE,
+    p_description subtasks.description%TYPE,
+    p_start_date subtasks.start_date%TYPE,
+    p_end_date subtasks.end_date%TYPE,
+    p_status subtasks.status%TYPE
+  );
+
+  -- Alt görev güncellemek için prosedür
+  PROCEDURE update_subtask (
+    p_subtask_id NUMBER,
+    p_task_id NUMBER,
+    p_subtask_name subtasks.subtask_name%TYPE,
+    p_description subtasks.description%TYPE,
+    p_start_date subtasks.start_date%TYPE,
+    p_end_date subtasks.end_date%TYPE,
+    p_status subtasks.status%TYPE
+  );
+
+  -- Alt görev silmek için prosedür
+  PROCEDURE delete_subtask (
+    p_subtask_id NUMBER
+  );
+
+  -- Common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2);
+
+END subtask_management_pkg;
+/
+
+-- Package Body
+CREATE OR REPLACE PACKAGE BODY subtask_management_pkg AS
+  -- Common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2) AS
+  BEGIN
+    ROLLBACK;
+    RAISE_APPLICATION_ERROR(-20000, p_error_message);
+  END raise_error;
+  
+  -- Alt görev eklemek için prosedür
+  PROCEDURE insert_subtask (
+    p_task_id NUMBER,
+    p_subtask_name subtasks.subtask_name%TYPE,
+    p_description subtasks.description%TYPE,
+    p_start_date subtasks.start_date%TYPE,
+    p_end_date subtasks.end_date%TYPE,
+    p_status subtasks.status%TYPE
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      INSERT INTO subtasks (subtask_id, task_id, subtask_name, description, start_date, end_date, status)
+      VALUES (subtask_id_seq.NEXTVAL, p_task_id, p_subtask_name, p_description, p_start_date, p_end_date, p_status);
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Alt görev ekleme hatası: ' || SQLERRM);
+    END;
+  END insert_subtask;
+
+  -- Alt görev güncellemek için prosedür
+  PROCEDURE update_subtask (
+    p_subtask_id NUMBER,
+    p_task_id NUMBER,
+    p_subtask_name subtasks.subtask_name%TYPE,
+    p_description subtasks.description%TYPE,
+    p_start_date subtasks.start_date%TYPE,
+    p_end_date subtasks.end_date%TYPE,
+    p_status subtasks.status%TYPE
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      UPDATE subtasks
+      SET task_id = p_task_id,
+          subtask_name = p_subtask_name,
+          description = p_description,
+          start_date = p_start_date,
+          end_date = p_end_date,
+          status = p_status
+      WHERE subtask_id = p_subtask_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Alt görev güncelleme hatası: ' || SQLERRM);
+    END;
+  END update_subtask;
+
+  -- Alt görev silmek için prosedür
+  PROCEDURE delete_subtask (
+    p_subtask_id NUMBER
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      DELETE FROM subtasks WHERE subtask_id = p_subtask_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Alt görev silme hatası: ' || SQLERRM);
+    END;
+  END delete_subtask;
+
+END subtask_management_pkg;
+/
+
+  
+
+BEGIN
+  subtask_management_pkg.insert_subtask(
+    p_task_id => 4,
+    p_subtask_name => 'Örnek Alt Görev',
+    p_description => 'Bu bir örnek alt görevdir.',
+    p_start_date => TO_DATE('2023-09-01', 'YYYY-MM-DD'),
+    p_end_date => TO_DATE('2023-09-30', 'YYYY-MM-DD'),
+    p_status => 'In Progress'
+  );
+END;
+/
+select *from tasks
+select *from subtasks
+/
+
