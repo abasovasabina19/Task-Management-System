@@ -2,30 +2,30 @@
 CREATE OR REPLACE PACKAGE task_management_pkg AS
   -- Görev eklemek için prosedür
   PROCEDURE insert_task (
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_project_id NUMBER,
-    p_assigned_to_username VARCHAR2,
-    p_status VARCHAR2 DEFAULT 'To-Do',
-    p_deadline TIMESTAMP,
-    p_reminder TIMESTAMP
+    p_name tasks.name%TYPE,
+    p_description tasks.description%TYPE,
+    p_project_id tasks.project_id%TYPE,
+    p_assigned_to_username users.username%TYPE,
+    p_status tasks.status%TYPE DEFAULT 'To-Do',
+    p_deadline tasks.deadline%TYPE,
+    p_reminder tasks.reminder%TYPE
   );
 
   -- Görev güncellemek için prosedür
   PROCEDURE update_task (
-    p_task_id NUMBER,
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_project_id NUMBER,
-    p_assigned_to_username VARCHAR2,
-    p_status VARCHAR2,
-    p_deadline TIMESTAMP,
-    p_reminder TIMESTAMP
+    p_task_id tasks.task_id%TYPE,
+    p_name tasks.name%TYPE,
+    p_description tasks.description%TYPE,
+    p_project_id tasks.project_id%TYPE,
+    p_assigned_to_username users.username%TYPE,
+    p_status tasks.status%TYPE,
+    p_deadline tasks.deadline%TYPE,
+    p_reminder tasks.reminder%TYPE
   );
 
   -- Görev silmek için prosedür
   PROCEDURE delete_task (
-    p_task_id NUMBER
+    p_task_id tasks.task_id%TYPE
   );
 
   -- Common subprocedure for raising exceptions and rolling back
@@ -45,15 +45,15 @@ CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
   
   -- Görev eklemek için prosedür
   PROCEDURE insert_task (
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_project_id NUMBER,
-    p_assigned_to_username VARCHAR2,
-    p_status VARCHAR2 DEFAULT 'To-Do',
-    p_deadline TIMESTAMP,
-    p_reminder TIMESTAMP
+    p_name tasks.name%TYPE,
+    p_description tasks.description%TYPE,
+    p_project_id tasks.project_id%TYPE,
+    p_assigned_to_username users.username%TYPE,
+    p_status tasks.status%TYPE DEFAULT 'To-Do',
+    p_deadline tasks.deadline%TYPE,
+    p_reminder tasks.reminder%TYPE
   ) AS
-    v_assigned_to_id NUMBER;
+    v_assigned_to_id users.user_id%TYPE;
   BEGIN
     -- Verilen kullanıcı adına göre kullanıcı kimliğini bul
     SELECT user_id INTO v_assigned_to_id FROM users WHERE username = p_assigned_to_username;
@@ -71,16 +71,16 @@ CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
 
   -- Görev güncellemek için prosedür
   PROCEDURE update_task (
-    p_task_id NUMBER,
-    p_name VARCHAR2,
-    p_description VARCHAR2,
-    p_project_id NUMBER,
-    p_assigned_to_username VARCHAR2,
-    p_status VARCHAR2,
-    p_deadline TIMESTAMP,
-    p_reminder TIMESTAMP
+    p_task_id tasks.task_id%TYPE,
+    p_name tasks.name%TYPE,
+    p_description tasks.description%TYPE,
+    p_project_id tasks.project_id%TYPE,
+    p_assigned_to_username users.username%TYPE,
+    p_status tasks.status%TYPE,
+    p_deadline tasks.deadline%TYPE,
+    p_reminder tasks.reminder%TYPE
   ) AS
-    v_assigned_to_id NUMBER;
+    v_assigned_to_id users.user_id%TYPE;
   BEGIN
     -- Verilen kullanıcı adına göre kullanıcı kimliğini bul
     SELECT user_id INTO v_assigned_to_id FROM users WHERE username = p_assigned_to_username;
@@ -105,7 +105,7 @@ CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
 
   -- Görev silmek için prosedür
   PROCEDURE delete_task (
-    p_task_id NUMBER
+    p_task_id tasks.task_id%TYPE
   ) AS
   BEGIN
     -- Start the transaction
@@ -120,4 +120,5 @@ CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
 
 END task_management_pkg;
 /
+
 
