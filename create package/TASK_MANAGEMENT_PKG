@@ -146,3 +146,19 @@ CREATE OR REPLACE PACKAGE BODY task_management_pkg AS
 
 END task_management_pkg;
 /
+
+
+BEGIN
+  task_management_pkg.insert_task(
+    'Örnek Görev',                 -- Görev adı
+    'Örnek Açıklama',             -- Görev açıklaması
+    1,                             -- Proje kimliği
+    'Leman',                -- Atanan kullanıcı adı
+    'To-Do',                       -- Görev durumu (varsayılan olarak 'To-Do')
+    TO_TIMESTAMP('2023-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'), -- Bitiş tarihi
+    TO_TIMESTAMP('2023-12-30 12:00:00', 'YYYY-MM-DD HH24:MI:SS')  -- Hatırlatma tarihi
+  );
+END;
+/
+
+select *from  tasks
