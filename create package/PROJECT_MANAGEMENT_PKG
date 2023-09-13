@@ -24,6 +24,14 @@ CREATE OR REPLACE PACKAGE project_management_pkg AS
   PROCEDURE delete_project (
     p_project_id projects.project_id%TYPE
   );
+   -- Log ekleme prosedürü
+  PROCEDURE add_log (
+    p_user_id logs.user_id%TYPE,
+    p_task_id logs.task_id%TYPE := NULL,
+    p_project_id logs.project_id%TYPE,
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
+  );
 
 END project_management_pkg;
 /
@@ -94,6 +102,24 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
         raise_error('Project deletion error: ' || SQLERRM);
     END;
   END delete_project;
+   -- Log ekleme prosedürü
+  PROCEDURE add_log (
+    p_user_id logs.user_id%TYPE,
+    p_task_id logs.task_id%TYPE := NULL,
+    p_project_id logs.project_id%TYPE,
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
+  ) AS
+  BEGIN
+    -- Log ekleme işlemi
+    INSERT INTO logs (log_id, user_id, task_id,project_id, event_type, description)
+    VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id,p_project_id, p_event_type, p_description);
+    
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      raise_error('Log insertion error: ' || SQLERRM);
+  END add_log;
 
 END project_management_pkg;
 /
@@ -101,7 +127,7 @@ END project_management_pkg;
 
   EXEC project_management_pkg.insert_project('Proje_Adi', 'Proje_Aciklama', 'To-Do', TO_TIMESTAMP('2023-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'));
   
-  EXEC project_management_pkg.update_project(1, 'Yeni_Proje_Adi', 'Yeni_Proje_Aciklama', 'In Progress', TO_TIMESTAMP('2023-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'));
+  EXEC project_management_pkg.update_project(3, 'Yeni_Proje_Adi', 'Yeni_Proje_Aciklama', 'In Progress', TO_TIMESTAMP('2023-12-31 23:59:59', 'YYYY-MM-DD HH24:MI:SS'));
    
    
   EXEC project_management_pkg.delete_project(2);
@@ -109,7 +135,3 @@ END project_management_pkg;
 /
 
 select *from projects;
-
-
-
-
