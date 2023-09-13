@@ -14,10 +14,19 @@ CREATE OR REPLACE PACKAGE role_management_pkg AS
   PROCEDURE delete_role(
     p_role_id roles.role_id%TYPE
   );
+  
+ -- Log Ekleme
+  PROCEDURE add_log(
+    p_user_id logs.user_id%TYPE,
+    p_task_id logs.task_id%TYPE := NULL, -- Task ID'yi opsiyonel hale getirin
+    p_project_id logs.project_id%TYPE,
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
+  );
 
 END role_management_pkg;
 /
-
+--Body
 CREATE OR REPLACE PACKAGE BODY role_management_pkg AS
   -- Rol eklemek için prosedür
   PROCEDURE insert_role(
@@ -27,6 +36,9 @@ CREATE OR REPLACE PACKAGE BODY role_management_pkg AS
     INSERT INTO roles (role_id, role_name)
     VALUES (role_id_seq.NEXTVAL, p_role_name);
     COMMIT;
+  
+  -- Loglama
+    add_log(NULL, NULL, NULL, 'ROLE_INSERT', 'Role inserted: ' || p_role_name);
   EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK;
@@ -43,12 +55,14 @@ CREATE OR REPLACE PACKAGE BODY role_management_pkg AS
     SET role_name = p_role_name
     WHERE role_id = p_role_id;
     COMMIT;
+  
+   -- Loglama
+    add_log(NULL, NULL, NULL,'ROLE_UPDATE', 'Role updated: ' || p_role_name);
   EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK;
       RAISE;
   END update_role;
-
   -- Rol silmek için prosedür
   PROCEDURE delete_role(
     p_role_id roles.role_id%TYPE
@@ -56,15 +70,37 @@ CREATE OR REPLACE PACKAGE BODY role_management_pkg AS
   BEGIN
     DELETE FROM roles WHERE role_id = p_role_id;
     COMMIT;
+  
+  -- Loglama
+    add_log(NULL, NULL, NULL,'ROLE_DELETE', 'Role deleted: ' || TO_CHAR(p_role_id));
   EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK;
       RAISE;
   END delete_role;
+  -- Log Ekleme
+  PROCEDURE add_log(
+    p_user_id logs.user_id%TYPE,
+    p_task_id logs.task_id%TYPE := NULL, -- Task ID'yi opsiyonel hale getirin
+    p_project_id logs.project_id%TYPE,
+    p_event_type logs.event_type%TYPE,
+    p_description logs.description%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO logs (log_id, user_id, task_id,project_id, event_type, description)
+    VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id,p_project_id, p_event_type, p_description);
+    
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      RAISE;
+  END add_log;  
 
 END role_management_pkg;
 /
  EXEC role_management_pkg.insert_role('User');
+ EXEC role_management_pkg.insert_role('Admin');
  EXEC role_management_pkg.delete_role(1);
  select *from roles
   
