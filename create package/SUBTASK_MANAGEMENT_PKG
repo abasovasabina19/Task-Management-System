@@ -1,3 +1,4 @@
+-- Package Specification
 CREATE OR REPLACE PACKAGE subtask_management_pkg AS
   -- Alt görev eklemek için prosedür
   PROCEDURE insert_subtask (
@@ -24,6 +25,7 @@ CREATE OR REPLACE PACKAGE subtask_management_pkg AS
   PROCEDURE delete_subtask (
     p_subtask_id NUMBER
   );
+
   -- Log ekleme prosedürü
   PROCEDURE add_log (
     p_user_id logs.user_id%TYPE,
@@ -32,7 +34,6 @@ CREATE OR REPLACE PACKAGE subtask_management_pkg AS
     p_event_type logs.event_type%TYPE,
     p_description logs.description%TYPE
   );
-
 
   -- Common subprocedure for raising exceptions and rolling back
   PROCEDURE raise_error(p_error_message VARCHAR2);
@@ -58,9 +59,20 @@ CREATE OR REPLACE PACKAGE BODY subtask_management_pkg AS
     p_end_date subtasks.end_date%TYPE,
     p_status subtasks.status%TYPE
   ) AS
+  v_task_count NUMBER; -- tasks tablosunda task_id'nin mevcutluğunu kontrol etmek için kullanılır
   BEGIN
     -- Start the transaction
     BEGIN
+      -- Geçerli bir task_id olup olmadığını kontrol et
+      SELECT COUNT(*)
+      INTO v_task_count
+      FROM tasks
+      WHERE task_id = p_task_id;
+      
+      IF v_task_count = 0 THEN
+        raise_error('Geçersiz task_id: ' || p_task_id);
+      END IF;
+
       INSERT INTO subtasks (subtask_id, task_id, subtask_name, description, start_date, end_date, status)
       VALUES (subtask_id_seq.NEXTVAL, p_task_id, p_subtask_name, p_description, p_start_date, p_end_date, p_status);
       COMMIT;
@@ -80,9 +92,20 @@ CREATE OR REPLACE PACKAGE BODY subtask_management_pkg AS
     p_end_date subtasks.end_date%TYPE,
     p_status subtasks.status%TYPE
   ) AS
+  v_task_count NUMBER; -- tasks tablosunda task_id'nin mevcutluğunu kontrol etmek için kullanılır
   BEGIN
     -- Start the transaction
     BEGIN
+      -- Geçerli bir task_id olup olmadığını kontrol et
+      SELECT COUNT(*)
+      INTO v_task_count
+      FROM tasks
+      WHERE task_id = p_task_id;
+      
+      IF v_task_count = 0 THEN
+        raise_error('Geçersiz task_id: ' || p_task_id);
+      END IF;
+
       UPDATE subtasks
       SET task_id = p_task_id,
           subtask_name = p_subtask_name,
@@ -133,6 +156,9 @@ CREATE OR REPLACE PACKAGE BODY subtask_management_pkg AS
 
 END subtask_management_pkg;
 /
+
+EXECUTE subtask_management_pkg.insert_subtask(6, 'Alt Görev Adı', 'Açıklama', TO_DATE('2023-09-20', 'YYYY-MM-DD'), TO_DATE('2023-09-25', 'YYYY-MM-DD'), 'Tamamlanmadı');
+
 
 BEGIN
   subtask_management_pkg.insert_subtask(
