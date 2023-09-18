@@ -1,1 +1,108 @@
-.
+-- Package Specification
+CREATE OR REPLACE PACKAGE user_project_management_pkg AS
+  -- Kullanıcıyı projeye eklemek için prosedür
+  PROCEDURE add_user_to_project (
+    p_user_id NUMBER,
+    p_project_id NUMBER
+  );
+
+  -- Kullanıcıyı projeden çıkarmak için prosedür
+  PROCEDURE delete_user_from_project (
+    p_user_project_id NUMBER
+  );
+
+  -- Common subprocedure for raising exceptions and logging
+  PROCEDURE raise_error(p_error_message VARCHAR2);
+
+  -- Log ekleme prosedürü
+  PROCEDURE add_log (
+    p_user_id NUMBER,
+    p_project_id NUMBER,
+    p_event_type VARCHAR2,
+    p_description VARCHAR2
+  );
+
+END user_project_management_pkg;
+/
+-- Package Body
+CREATE OR REPLACE PACKAGE BODY user_project_management_pkg AS
+  -- Common subprocedure for raising exceptions and logging
+  PROCEDURE raise_error(p_error_message VARCHAR2) AS
+  BEGIN
+    ROLLBACK;
+    RAISE_APPLICATION_ERROR(-20000, p_error_message);
+  END raise_error;
+
+  -- Kullanıcıyı projeye eklemek için prosedür
+  PROCEDURE add_user_to_project (
+    p_user_id NUMBER,
+    p_project_id NUMBER
+  ) AS
+    v_user_id users.user_id%TYPE;
+    v_project_id projects.project_id%TYPE;
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      -- Kullanıcıyı ve proje bilgilerini çek
+      SELECT user_id INTO v_user_id FROM users WHERE user_id = p_user_id;
+      SELECT project_id INTO v_project_id FROM projects WHERE project_id = p_project_id;
+      
+      IF v_user_id IS NULL THEN
+        raise_error('Geçersiz user_id');
+      END IF;
+      
+      IF v_project_id IS NULL THEN
+        raise_error('Geçersiz project_id');
+      END IF;
+
+      INSERT INTO user_project (user_project_id, user_id, project_id)
+      VALUES (user_project_id_seq.NEXTVAL, v_user_id, v_project_id);
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Kullanıcıyı projeye ekleme hatası: ' || SQLERRM);
+    END;
+  END add_user_to_project;
+
+  -- Kullanıcıyı projeden çıkarmak için prosedür
+  PROCEDURE delete_user_from_project (
+    p_user_project_id NUMBER
+  ) AS
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      DELETE FROM user_project
+      WHERE user_project_id = p_user_project_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Kullanıcıyı projeden çıkarma hatası: ' || SQLERRM);
+    END;
+  END delete_user_from_project;
+
+  -- Log ekleme prosedürü
+  PROCEDURE add_log (
+    p_user_id NUMBER,
+    p_project_id NUMBER,
+    p_event_type VARCHAR2,
+    p_description VARCHAR2
+  ) AS
+  BEGIN
+    -- Log ekleme işlemi
+    INSERT INTO logs (log_id, user_id, project_id, event_type, description)
+    VALUES (log_id_seq.NEXTVAL, p_user_id, p_project_id, p_event_type, p_description);
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      raise_error('Log ekleme hatası: ' || SQLERRM);
+  END add_log;
+
+END user_project_management_pkg;
+/
+
+
+  EXECUTE user_project_management_pkg.add_user_to_project(17, 3); 
+  select *from users;
+  select*from projects;
+  select*from user_project;
+/
