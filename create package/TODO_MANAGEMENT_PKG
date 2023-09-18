@@ -1,1 +1,118 @@
-.
+-- Package Specification
+CREATE OR REPLACE PACKAGE todo_management_pkg AS
+  -- Görev eklemek için prosedür
+  PROCEDURE insert_todo (
+    p_user_id todos.user_id%TYPE,
+    p_task_name todos.task_name%TYPE,
+    p_task_description todos.task_description%TYPE,
+    p_task_status todos.task_status%TYPE,
+    p_task_date todos.task_date%TYPE
+  );
+
+  -- Görev güncellemek için prosedür
+  PROCEDURE update_todo (
+    p_todo_id todos.todo_id%TYPE,
+    p_user_id todos.user_id%TYPE,
+    p_task_name todos.task_name%TYPE,
+    p_task_description todos.task_description%TYPE,
+    p_task_status todos.task_status%TYPE,
+    p_task_date todos.task_date%TYPE
+  );
+
+  -- Görev silmek için prosedür
+  PROCEDURE delete_todo (
+    p_todo_id todos.todo_id%TYPE
+  );
+
+  -- Common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2);
+
+END todo_management_pkg;
+/
+-- Package Body
+CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
+  -- Common subprocedure for raising exceptions and rolling back
+  PROCEDURE raise_error(p_error_message VARCHAR2) AS
+  BEGIN
+    ROLLBACK;
+    RAISE_APPLICATION_ERROR(-20000, p_error_message);
+  END raise_error;
+
+  -- Görev eklemek için prosedür
+  PROCEDURE insert_todo (
+    p_user_id todos.user_id%TYPE,
+    p_task_name todos.task_name%TYPE,
+    p_task_description todos.task_description%TYPE,
+    p_task_status todos.task_status%TYPE,
+    p_task_date todos.task_date%TYPE
+  ) AS
+  v_count NUMBER; -- v_count değişkenini tanımla
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      INSERT INTO todos (todo_id, user_id, task_name, task_description, task_status, task_date)
+      VALUES (todo_id_seq.NEXTVAL, p_user_id, p_task_name, p_task_description, p_task_status, p_task_date);
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Görev ekleme hatası: ' || SQLERRM);
+    END;
+  END insert_todo;
+
+  -- Görev güncellemek için prosedür
+  PROCEDURE update_todo (
+    p_todo_id todos.todo_id%TYPE,
+    p_user_id todos.user_id%TYPE,
+    p_task_name todos.task_name%TYPE,
+    p_task_description todos.task_description%TYPE,
+    p_task_status todos.task_status%TYPE,
+    p_task_date todos.task_date%TYPE
+  ) AS
+  v_count NUMBER; -- v_count değişkenini tanımla
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      -- Veritabanında p_todo_id ve p_user_id ile eşleşen bir görev var mı kontrol et
+      SELECT COUNT(*)
+      INTO v_count
+      FROM todos
+      WHERE todo_id = p_todo_id AND user_id = p_user_id;
+
+      IF v_count = 0 THEN
+        raise_error('Geçersiz todo_id veya user_id');
+      END IF;
+
+      -- Görevi güncelle
+      UPDATE todos
+      SET task_name = p_task_name,
+          task_description = p_task_description,
+          task_status = p_task_status,
+          task_date = p_task_date
+      WHERE todo_id = p_todo_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Görev güncelleme hatası: ' || SQLERRM);
+    END;
+  END update_todo;
+
+  -- Görev silmek için prosedür
+  PROCEDURE delete_todo (
+    p_todo_id todos.todo_id%TYPE
+  ) AS
+  v_count NUMBER; -- v_count değişkenini tanımla
+  BEGIN
+    -- Start the transaction
+    BEGIN
+      DELETE FROM todos WHERE todo_id = p_todo_id;
+      COMMIT;
+    EXCEPTION
+      WHEN OTHERS THEN
+        raise_error('Görev silme hatası: ' || SQLERRM);
+    END;
+  END delete_todo;
+
+END todo_management_pkg;
+/
+ EXEC todo_management_pkg.insert_todo(17, 'Örnek Görev', 'Bu bir örnek görev açıklamasıdır.', 'To-Do', SYSDATE);
+ select *from todos;
