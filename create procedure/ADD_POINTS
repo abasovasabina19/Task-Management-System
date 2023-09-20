@@ -1,0 +1,23 @@
+
+-- Puan Ekleme Prosedürü
+CREATE OR REPLACE PROCEDURE add_points(
+    p_user_id NUMBER,
+    p_activity_type VARCHAR2,
+    p_activity_points NUMBER
+) AS
+BEGIN
+    -- Verilen aktivite türüne ve puanlara göre puan eklemesi yap
+    INSERT INTO user_activities (activity_id, user_id, activity_type, activity_points)
+    VALUES (activity_id_seq.NEXTVAL, p_user_id, p_activity_type, p_activity_points);
+    
+    -- Kullanıcının toplam puanlarını güncelle
+    UPDATE user_points
+    SET points = points + p_activity_points
+    WHERE user_id = p_user_id;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END add_points;
