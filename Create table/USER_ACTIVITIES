@@ -1,0 +1,8 @@
+-- Kullanıcı Aktiviteleri Tablosu
+CREATE TABLE user_activities (
+    activity_id NUMBER PRIMARY KEY,
+    user_id NUMBER,
+    activity_type VARCHAR2(50),
+    activity_points NUMBER,
+    activity_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
