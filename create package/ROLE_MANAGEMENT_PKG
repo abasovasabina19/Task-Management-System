@@ -86,6 +86,8 @@ CREATE OR REPLACE PACKAGE BODY role_management_pkg AS
     p_event_type logs.event_type%TYPE,
     p_description logs.description%TYPE
   ) AS
+-- Tranzaction pragma ile işlemi başlat
+    PRAGMA AUTONOMOUS_TRANSACTION;
   BEGIN
     INSERT INTO logs (log_id, user_id, task_id,project_id, event_type, description)
     VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id,p_project_id, p_event_type, p_description);
