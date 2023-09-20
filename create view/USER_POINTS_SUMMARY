@@ -1,0 +1,15 @@
+--Kullanıcıların toplam puanlarını ve aktivite puanlarını içeren bir view 
+CREATE VIEW user_points_summary AS
+SELECT
+    u.user_id,
+    u.username,
+    NVL(SUM(ua.activity_points), 0) AS total_activity_points,
+    NVL(up.points, 0) AS total_points
+FROM
+    users u
+LEFT JOIN
+    user_activities ua ON u.user_id = ua.user_id
+LEFT JOIN
+    user_points up ON u.user_id = up.user_id
+GROUP BY
+    u.user_id, u.username, up.points;
