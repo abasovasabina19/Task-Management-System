@@ -136,6 +136,8 @@ CREATE OR REPLACE PACKAGE BODY comment_management_pkg AS
     p_event_type logs.event_type%TYPE,
     p_description logs.description%TYPE
   ) AS
+-- Tranzaction pragma ile işlemi başlat
+    PRAGMA AUTONOMOUS_TRANSACTION;
   BEGIN
     -- Log ekleme işlemi
     INSERT INTO logs (log_id, user_id, task_id, project_id, event_type, description)
