@@ -1,0 +1,13 @@
+--Kullanıcıların görev tamamlama istatistiklerini gösteren bir analitik rapor
+CREATE VIEW user_task_stats_view AS
+SELECT
+    u.user_id,
+    u.username,
+    COUNT(t.task_id) AS total_tasks,
+    calculate_user_task_stats(u.user_id) AS completion_rate
+FROM
+    users u
+LEFT JOIN
+    tasks t ON u.user_id = t.assigned_to
+GROUP BY
+    u.user_id, u.username;
