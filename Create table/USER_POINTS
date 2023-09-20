@@ -1,0 +1,5 @@
+-- Kullanıcı Puanları Tablosu
+CREATE TABLE user_points (
+    user_id NUMBER PRIMARY KEY,
+    points NUMBER DEFAULT 0
+);
