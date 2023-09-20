@@ -1,0 +1,16 @@
+
+
+--Bu işlev, belirli bir kullanıcının tamamlanan görevlerinin yüzde tamamlanma oranını hesaplar. 
+CREATE OR REPLACE function calculate_user_task_stats(p_user_id NUMBER) RETURN NUMBER IS
+    v_completion_rate NUMBER;
+BEGIN
+    SELECT (COUNT(CASE WHEN t.status = 'Completed' THEN 1 ELSE NULL END) / NULLIF(COUNT(t.task_id), 0)) * 100
+    INTO v_completion_rate
+    FROM tasks t
+    WHERE t.assigned_to = p_user_id;
+
+    RETURN v_completion_rate;
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN 0; -- Hata durumunda sıfır değer döndür
+END calculate_user_task_stats;
