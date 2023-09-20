@@ -87,6 +87,8 @@ CREATE OR REPLACE PACKAGE BODY user_project_management_pkg AS
     p_event_type VARCHAR2,
     p_description VARCHAR2
   ) AS
+-- Tranzaction pragma ile işlemi başlat
+    PRAGMA AUTONOMOUS_TRANSACTION;
   BEGIN
     -- Log ekleme işlemi
     INSERT INTO logs (log_id, user_id, project_id, event_type, description)
