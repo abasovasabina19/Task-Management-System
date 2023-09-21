@@ -1,0 +1,8 @@
+--Her kullanıcının puanlarını ve önceki puanlarını görüntüler.
+CREATE OR REPLACE VIEW user_points_with_previous AS
+SELECT
+    user_id,
+    points,
+    LAG(points) OVER (ORDER BY user_id) AS previous_points
+FROM
+    user_points;
