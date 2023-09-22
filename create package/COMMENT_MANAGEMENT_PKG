@@ -22,14 +22,6 @@ CREATE OR REPLACE PACKAGE comment_management_pkg AS
     p_comment_id comments.comment_id%TYPE
   );
 
-  -- Log ekleme prosedürü
-  PROCEDURE add_log (
-    p_user_id logs.user_id%TYPE,
-    p_task_id logs.task_id%TYPE := NULL,
-    p_project_id logs.project_id%TYPE,
-    p_event_type logs.event_type%TYPE,
-    p_description logs.description%TYPE
-  );
 
   -- Common subprocedure for raising exceptions and rolling back
   PROCEDURE raise_error(p_error_message VARCHAR2);
@@ -63,7 +55,7 @@ CREATE OR REPLACE PACKAGE BODY comment_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Yorum ekleme hatası: ' || SQLERRM);
+        log_error('insert',sqlcode,sqlerrm);
     END;
   END insert_comment;
 
@@ -75,12 +67,12 @@ CREATE OR REPLACE PACKAGE BODY comment_management_pkg AS
     p_comment_text comments.comment_text%TYPE,
     p_comment_time comments.comment_time%TYPE
   ) AS
-    v_count NUMBER; -- DECLARE edilen değişken
+    v_count NUMBER; -- DECLARE edilen de?i?ken
 
   BEGIN
     -- Start the transaction
     BEGIN
-      -- Veritabanında p_task_id ve p_user_id ile eşleşen bir görev ve kullanıcı var mı kontrol et
+      -- Veritaban?nda p_task_id ve p_user_id ile e?le?en bir görev ve kullan?c? var m? kontrol et
       SELECT COUNT(*)
       INTO v_count
       FROM tasks
@@ -109,7 +101,7 @@ CREATE OR REPLACE PACKAGE BODY comment_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Yorum güncelleme hatası: ' || SQLERRM);
+        log_error('update',sqlcode,sqlerrm);
     END;
   END update_comment;
 
@@ -124,30 +116,11 @@ CREATE OR REPLACE PACKAGE BODY comment_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Yorum silme hatası: ' || SQLERRM);
+        log_error('delete',sqlcode,sqlerrm);
     END;
   END delete_comment;
 
-  -- Log ekleme prosedürü
-  PROCEDURE add_log (
-    p_user_id logs.user_id%TYPE,
-    p_task_id logs.task_id%TYPE := NULL,
-    p_project_id logs.project_id%TYPE,
-    p_event_type logs.event_type%TYPE,
-    p_description logs.description%TYPE
-  ) AS
--- Tranzaction pragma ile işlemi başlat
-    PRAGMA AUTONOMOUS_TRANSACTION;
-  BEGIN
-    -- Log ekleme işlemi
-    INSERT INTO logs (log_id, user_id, task_id, project_id, event_type, description)
-    VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id, p_project_id, p_event_type, p_description);
-    COMMIT;
-  EXCEPTION
-    WHEN OTHERS THEN
-      raise_error('Log ekleme hatası: ' || SQLERRM);
-  END add_log;
-
+  
 END comment_management_pkg;
 /
 
