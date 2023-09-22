@@ -96,7 +96,7 @@ CREATE OR REPLACE PACKAGE BODY user_management_pkg AS
 
 END user_management_pkg;
 /
-/
+
 EXEC user_management_pkg.add_user('Sabina', 'Sabina@div.edu.az', 'parola123', 'User');
 EXEC user_management_pkg.update_user(17, 'Leman', 'Leman@div.edu.az', 'newparola12', 'Admin');
 EXEC user_management_pkg.delete_user(1);
