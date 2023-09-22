@@ -1,0 +1,26 @@
+CREATE OR REPLACE PROCEDURE log_error
+(
+  p_calling_program IN VARCHAR2,
+  p_error_code IN INTEGER,
+  p_error_description IN VARCHAR2
+)
+IS
+  PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+  INSERT INTO log_errors (
+  calling_program,
+  error_code,
+  error_description,
+  log_date,
+  logged_by
+  )
+  VALUES
+  (
+  p_calling_program,
+  p_error_code,
+  p_error_description,
+  SYSDATE,
+  USER
+  );
+  COMMIT;
+END log_error;
