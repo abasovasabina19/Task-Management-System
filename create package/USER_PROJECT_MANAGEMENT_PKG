@@ -1,12 +1,12 @@
 -- Package Specification
 CREATE OR REPLACE PACKAGE user_project_management_pkg AS
-  -- Kullanıcıyı projeye eklemek için prosedür
+  -- Kullan?c?y? projeye eklemek için prosedür
   PROCEDURE add_user_to_project (
     p_user_id NUMBER,
     p_project_id NUMBER
   );
 
-  -- Kullanıcıyı projeden çıkarmak için prosedür
+  -- Kullan?c?y? projeden ç?karmak için prosedür
   PROCEDURE delete_user_from_project (
     p_user_project_id NUMBER
   );
@@ -14,13 +14,6 @@ CREATE OR REPLACE PACKAGE user_project_management_pkg AS
   -- Common subprocedure for raising exceptions and logging
   PROCEDURE raise_error(p_error_message VARCHAR2);
 
-  -- Log ekleme prosedürü
-  PROCEDURE add_log (
-    p_user_id NUMBER,
-    p_project_id NUMBER,
-    p_event_type VARCHAR2,
-    p_description VARCHAR2
-  );
 
 END user_project_management_pkg;
 /
@@ -33,7 +26,7 @@ CREATE OR REPLACE PACKAGE BODY user_project_management_pkg AS
     RAISE_APPLICATION_ERROR(-20000, p_error_message);
   END raise_error;
 
-  -- Kullanıcıyı projeye eklemek için prosedür
+  -- Kullan?c?y? projeye eklemek için prosedür
   PROCEDURE add_user_to_project (
     p_user_id NUMBER,
     p_project_id NUMBER
@@ -43,7 +36,7 @@ CREATE OR REPLACE PACKAGE BODY user_project_management_pkg AS
   BEGIN
     -- Start the transaction
     BEGIN
-      -- Kullanıcıyı ve proje bilgilerini çek
+      -- Kullan?c?y? ve proje bilgilerini çek
       SELECT user_id INTO v_user_id FROM users WHERE user_id = p_user_id;
       SELECT project_id INTO v_project_id FROM projects WHERE project_id = p_project_id;
       
@@ -60,11 +53,11 @@ CREATE OR REPLACE PACKAGE BODY user_project_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Kullanıcıyı projeye ekleme hatası: ' || SQLERRM);
+        log_error('insert',sqlcode,sqlerrm);
     END;
   END add_user_to_project;
 
-  -- Kullanıcıyı projeden çıkarmak için prosedür
+  -- Kullan?c?y? projeden ç?karmak için prosedür
   PROCEDURE delete_user_from_project (
     p_user_project_id NUMBER
   ) AS
@@ -76,32 +69,14 @@ CREATE OR REPLACE PACKAGE BODY user_project_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Kullanıcıyı projeden çıkarma hatası: ' || SQLERRM);
+        log_error('delete',sqlcode,sqlerrm);
     END;
   END delete_user_from_project;
 
-  -- Log ekleme prosedürü
-  PROCEDURE add_log (
-    p_user_id NUMBER,
-    p_project_id NUMBER,
-    p_event_type VARCHAR2,
-    p_description VARCHAR2
-  ) AS
--- Tranzaction pragma ile işlemi başlat
-    PRAGMA AUTONOMOUS_TRANSACTION;
-  BEGIN
-    -- Log ekleme işlemi
-    INSERT INTO logs (log_id, user_id, project_id, event_type, description)
-    VALUES (log_id_seq.NEXTVAL, p_user_id, p_project_id, p_event_type, p_description);
-    COMMIT;
-  EXCEPTION
-    WHEN OTHERS THEN
-      raise_error('Log ekleme hatası: ' || SQLERRM);
-  END add_log;
+ 
 
 END user_project_management_pkg;
 /
-
 
   EXECUTE user_project_management_pkg.add_user_to_project(17, 3); 
   select *from users;
