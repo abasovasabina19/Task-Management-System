@@ -1,8 +1,6 @@
 -- Package Specification
 CREATE OR REPLACE PACKAGE project_management_pkg AS
-  -- Common subprocedure for raising exceptions and rolling back
-  PROCEDURE raise_error(p_error_message VARCHAR2);
-  
+
   -- Proje eklemek için prosedür
   PROCEDURE insert_project (
     p_name projects.name%TYPE,
@@ -24,26 +22,13 @@ CREATE OR REPLACE PACKAGE project_management_pkg AS
   PROCEDURE delete_project (
     p_project_id projects.project_id%TYPE
   );
-   -- Log ekleme prosedürü
-  PROCEDURE add_log (
-    p_user_id logs.user_id%TYPE,
-    p_task_id logs.task_id%TYPE := NULL,
-    p_project_id logs.project_id%TYPE,
-    p_event_type logs.event_type%TYPE,
-    p_description logs.description%TYPE
-  );
+
 
 END project_management_pkg;
 /
 
 -- Package Body
 CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
-  -- Common subprocedure for raising exceptions and rolling back
-  PROCEDURE raise_error(p_error_message VARCHAR2) AS
-  BEGIN
-    ROLLBACK;
-    RAISE_APPLICATION_ERROR(-20000, p_error_message);
-  END raise_error;
   
   -- Proje eklemek için prosedür
   PROCEDURE insert_project (
@@ -60,7 +45,7 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Project insertion error: ' || SQLERRM);
+        log_error('insert',sqlcode,sqlerrm);
     END;
   END insert_project;
 
@@ -84,7 +69,7 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Project update error: ' || SQLERRM);
+        log_error('update',sqlcode,sqlerrm);
     END;
   END update_project;
 
@@ -99,30 +84,10 @@ CREATE OR REPLACE PACKAGE BODY project_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Project deletion error: ' || SQLERRM);
+       log_error('delete',sqlcode,sqlerrm);
     END;
   END delete_project;
-   -- Log ekleme prosedürü
-  PROCEDURE add_log (
-    p_user_id logs.user_id%TYPE,
-    p_task_id logs.task_id%TYPE := NULL,
-    p_project_id logs.project_id%TYPE,
-    p_event_type logs.event_type%TYPE,
-    p_description logs.description%TYPE
-  ) AS
--- Tranzaction pragma ile işlemi başlat
-    PRAGMA AUTONOMOUS_TRANSACTION;
-  BEGIN
-    -- Log ekleme işlemi
-    INSERT INTO logs (log_id, user_id, task_id,project_id, event_type, description)
-    VALUES (log_id_seq.NEXTVAL, p_user_id, p_task_id,p_project_id, p_event_type, p_description);
-    
-    COMMIT;
-  EXCEPTION
-    WHEN OTHERS THEN
-      raise_error('Log insertion error: ' || SQLERRM);
-  END add_log;
-
+   
 END project_management_pkg;
 /
 
