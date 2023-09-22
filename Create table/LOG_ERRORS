@@ -1,0 +1,7 @@
+CREATE TABLE log_errors (
+    calling_program VARCHAR2(255 CHAR) NOT NULL,
+    error_code NUMBER NOT NULL,
+    error_description VARCHAR2(1000),
+    log_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    logged_by VARCHAR2(255 CHAR) NOT NULL
+);
