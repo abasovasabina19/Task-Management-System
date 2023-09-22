@@ -46,7 +46,7 @@ CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
     p_task_status todos.task_status%TYPE,
     p_task_date todos.task_date%TYPE
   ) AS
-  v_count NUMBER; -- v_count değişkenini tanımla
+  v_count NUMBER; -- v_count de?i?kenini tan?mla
   BEGIN
     -- Start the transaction
     BEGIN
@@ -55,7 +55,7 @@ CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Görev ekleme hatası: ' || SQLERRM);
+        log_error('insert',sqlcode,sqlerrm);
     END;
   END insert_todo;
 
@@ -68,11 +68,11 @@ CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
     p_task_status todos.task_status%TYPE,
     p_task_date todos.task_date%TYPE
   ) AS
-  v_count NUMBER; -- v_count değişkenini tanımla
+  v_count NUMBER; -- v_count de?i?kenini tan?mla
   BEGIN
     -- Start the transaction
     BEGIN
-      -- Veritabanında p_todo_id ve p_user_id ile eşleşen bir görev var mı kontrol et
+      -- Veritaban?nda p_todo_id ve p_user_id ile e?le?en bir görev var m? kontrol et
       SELECT COUNT(*)
       INTO v_count
       FROM todos
@@ -92,7 +92,7 @@ CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Görev güncelleme hatası: ' || SQLERRM);
+        log_error('update',sqlcode,sqlerrm);
     END;
   END update_todo;
 
@@ -100,7 +100,7 @@ CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
   PROCEDURE delete_todo (
     p_todo_id todos.todo_id%TYPE
   ) AS
-  v_count NUMBER; -- v_count değişkenini tanımla
+  v_count NUMBER; -- v_count de?i?kenini tan?mla
   BEGIN
     -- Start the transaction
     BEGIN
@@ -108,7 +108,7 @@ CREATE OR REPLACE PACKAGE BODY todo_management_pkg AS
       COMMIT;
     EXCEPTION
       WHEN OTHERS THEN
-        raise_error('Görev silme hatası: ' || SQLERRM);
+        log_error('delete',sqlcode,sqlerrm);
     END;
   END delete_todo;
 
